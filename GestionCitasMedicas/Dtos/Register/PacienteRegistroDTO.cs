@@ -1,6 +1,6 @@
 namespace GestionCitasMedicas.Dtos.Register
 {
-    public class PacienteRegistroDto
+    public class PacienteRegistroDTO
     {
         public string usuario { get; set; }
         public string clave { get; set; }

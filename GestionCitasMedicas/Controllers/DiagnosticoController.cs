@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GestionCitasMedicas.Dtos;
+using System.Threading.Tasks;
+using AutoMapper;
+using GestionCitasMedicas.Dtos.Diagnostico;
 using GestionCitasMedicas.Entities;
-using GestionCitasMedicas.Repositories;
+using GestionCitasMedicas.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestionCitasMedicas.Controllers
@@ -12,58 +14,64 @@ namespace GestionCitasMedicas.Controllers
     [Route("diagnosticos")]
     public class DiagnosticoController : ControllerBase
     {
-        private readonly IDiagnosticoRepository repository;
-
-        public DiagnosticoController(IDiagnosticoRepository repository)
+        private readonly IDiagnosticoService service;
+        private readonly IMapper mapper;
+        public DiagnosticoController(IDiagnosticoService service, IMapper mapper)
         {
-            this.repository = repository;
+            this.service = service;
+            this.mapper = mapper;
         }
 
         // GET /diagnosticos
         [HttpGet]
-        public IEnumerable<Diagnostico> GetDiagnosticos()
+        public async Task<IEnumerable<DiagnosticoDTO>> GetDiagnosticos()
         {
-            //TODO mapping
-            var diags = repository.GetDiagnosticos().Select(item => item);
-            return diags;
+            ICollection<Diagnostico> diags = await service.findAllAsync();
+            return mapper.Map<ICollection<Diagnostico>, ICollection<DiagnosticoDTO>>(diags);
         }
 
         // Get /diagnosticos/{id}
         [HttpGet("{id}")]
-        public ActionResult<Diagnostico> GetDiagnostico(long id)
+        public async Task<ActionResult<DiagnosticoDTO>> GetDiagnostico(long id)
         {
-            var diag = repository.GetDiagnostico(id);
+            Diagnostico diag = await service.findByIdAsync(id);
             if (diag is null)
             {
                 return NotFound();
             }
-            return diag;
+            return mapper.Map<Diagnostico, DiagnosticoDTO>(diag);
         }
 
         // Post /diagnosticos/add
         [HttpPost("add")]
-        public ActionResult<Diagnostico> CreateDiagnostico(Diagnostico diag)
+        public async Task<ActionResult<DiagnosticoDTO>> CreateDiagnostico(DiagnosticoDTO diagDto)
         {
-            //TODO DTO
-            Diagnostico diagNew = new();
-
-            repository.CreateDiagnostico(diag);
-            
-            return CreatedAtAction(nameof(GetDiagnostico), new { id = diag.id}, diag);
+            Diagnostico diag = mapper.Map<DiagnosticoDTO, Diagnostico>(diagDto);
+            Diagnostico diagNew = await service.saveAsync(diag);
+            if (diagNew != null)
+                return mapper.Map<Diagnostico, DiagnosticoDTO>(diagNew);
+            return BadRequest();
         }
 
         // PUT /diagnosticos/update
         [HttpPut("update")]
-        public ActionResult UpdateDiagnostico(Diagnostico diag)
+        public async Task<ActionResult<DiagnosticoDTO>> UpdateDiagnostico(DiagnosticoDTO diagDto)
         {
-            return NoContent();
+            Diagnostico diag = mapper.Map<DiagnosticoDTO, Diagnostico>(diagDto);
+            Diagnostico diagUpdated = await service.updateAsync(diag);
+            if (diagUpdated == null)
+                return NotFound();
+            //return CreatedAtAction(nameof(UpdateDiagnostico), new {id = diagUpdated.id}, diagUpdated);
+            return mapper.Map<Diagnostico, DiagnosticoDTO>(diagUpdated);
         }
         
         // DELETE /diagnosticos/delete/{id}
         [HttpDelete("delete/{id}")]
-        public ActionResult DeleteItem(Guid id)
+        public async Task<ActionResult> DeleteItem(long id)
         {
-            return NoContent();
+            if (await service.deleteAsync(id))
+                return NoContent();
+            return NotFound();
         }
     }
 }

@@ -11,7 +11,7 @@ namespace GestionCitasMedicas.Dtos.Paciente
         public string numTarjeta { get; set; }
         public string telefono { get; set; }
         public string direccion { get; set; }
-        public HashSet<MedicoOnlyDTO> medicos { get; set; }
-        public HashSet<CitaDTO> citas { get; set; }
+        public ICollection<MedicoOnlyDTO> medicos { get; set; }
+        public ICollection<CitaDTO> citas { get; set; }
     }
 }

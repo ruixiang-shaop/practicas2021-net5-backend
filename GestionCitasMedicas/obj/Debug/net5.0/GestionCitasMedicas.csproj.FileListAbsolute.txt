@@ -42,3 +42,8 @@ C:\Users\ruixi\net5-backend\GestionCitasMedicas\obj\Debug\net5.0\GestionCitasMed
 C:\Users\ruixi\net5-backend\GestionCitasMedicas\obj\Debug\net5.0\ref\GestionCitasMedicas.dll
 C:\Users\ruixi\net5-backend\GestionCitasMedicas\obj\Debug\net5.0\GestionCitasMedicas.pdb
 C:\Users\ruixi\net5-backend\GestionCitasMedicas\obj\Debug\net5.0\GestionCitasMedicas.genruntimeconfig.cache
+C:\Users\ruixi\net5-backend\GestionCitasMedicas\bin\Debug\net5.0\AutoMapper.dll
+C:\Users\ruixi\net5-backend\GestionCitasMedicas\bin\Debug\net5.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+C:\Users\ruixi\net5-backend\GestionCitasMedicas\bin\Debug\net5.0\Castle.Core.dll
+C:\Users\ruixi\net5-backend\GestionCitasMedicas\bin\Debug\net5.0\Microsoft.EntityFrameworkCore.Proxies.dll
+C:\Users\ruixi\net5-backend\GestionCitasMedicas\bin\Debug\net5.0\System.Diagnostics.DiagnosticSource.dll

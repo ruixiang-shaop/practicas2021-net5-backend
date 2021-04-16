@@ -1,15 +1,15 @@
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using GestionCitasMedicas.Entities;
 
 namespace GestionCitasMedicas.Repositories
 {
     public interface IDiagnosticoRepository
     {
-        Diagnostico GetDiagnostico(long id);
-        IEnumerable<Diagnostico> GetDiagnosticos();
-        void CreateDiagnostico(Diagnostico diag);
-        void UpdateDiagnostico(Diagnostico diag);
-        void DeleteDiagnostico(long id);
+        Task<Diagnostico> GetDiagnosticoAsync(long id);
+        Task<IEnumerable<Diagnostico>> GetDiagnosticosAsync();
+        Task<Diagnostico> CreateDiagnosticoAsync(Diagnostico diag);
+        Task<Diagnostico> UpdateDiagnosticoAsync(Diagnostico diag);
+        Task DeleteDiagnosticoAsync(long id);
     }
 }

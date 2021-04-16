@@ -2,7 +2,7 @@ using System;
 
 namespace GestionCitasMedicas.Dtos.Cita
 {
-    public class Cita
+    public class CitaDTO
     {
         public long id { get; set; }
         public DateTime fechaHora { get; set; }
