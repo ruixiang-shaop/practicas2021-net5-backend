@@ -8,8 +8,8 @@ namespace GestionCitasMedicas.Services
     {
         public Task<ICollection<Paciente>> findAllAsync();
         public Task<Paciente> findByIdAsync(long id);
-        public Task<Paciente> saveAsync(Paciente pac);
+        public Task<long?> saveAsync(Paciente pac);
         public Task<bool> deleteAsync(long id);
-        public Task<Paciente> updateAsync(Paciente pac);
+        public Task<bool> updateAsync(Paciente pac);
     }
 }

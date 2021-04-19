@@ -60,7 +60,7 @@ namespace GestionCitasMedicas.ServicesImpl
                     return null;
                 if (diag.valoracionEspecialista != null) updatedDiag.valoracionEspecialista = diag.valoracionEspecialista;
                 if (diag.enfermedad != null) updatedDiag.enfermedad = diag.enfermedad;
-                if (diag.cita != null) updatedDiag.cita = diag.cita;
+                if (diag.cita != null) updatedDiag.citaId = diag.citaId;
                 return await repository.UpdateDiagnosticoAsync(updatedDiag);
             } catch (Exception) {
                 return null;

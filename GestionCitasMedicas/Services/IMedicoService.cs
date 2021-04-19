@@ -9,8 +9,8 @@ namespace GestionCitasMedicas.Services
         public Task<ICollection<Medico>> findAllAsync();
         public Task<Medico> findByIdAsync(long id);
         public Task<Medico> getRandom();
-        public Task<Medico> saveAsync(Medico med);
+        public Task<long?> saveAsync(Medico med);
         public Task<bool> deleteAsync(long id);
-        public Task<Medico> updateAsync(Medico med);
+        public Task<bool> updateAsync(Medico med);
     }
 }

@@ -61,7 +61,6 @@ namespace GestionCitasMedicas.Controllers
             Diagnostico diagUpdated = await service.updateAsync(diag);
             if (diagUpdated == null)
                 return NotFound();
-            //return CreatedAtAction(nameof(UpdateDiagnostico), new {id = diagUpdated.id}, diagUpdated);
             return mapper.Map<Diagnostico, DiagnosticoDTO>(diagUpdated);
         }
         

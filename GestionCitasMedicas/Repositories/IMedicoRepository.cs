@@ -9,8 +9,8 @@ namespace GestionCitasMedicas.Repositories
         Task<Medico> GetMedicoAsync(long id);
         Task<IEnumerable<Medico>> GetMedicosAsync();
         Task<Medico> GetMedicoRandomAsync();
-        Task<Medico> CreateMedicoAsync(Medico diag);
-        Task<Medico> UpdateMedicoAsync(Medico diag);
+        Task<long> CreateMedicoAsync(Medico diag);
+        Task UpdateMedicoAsync(Medico diag);
         Task DeleteMedicoAsync(long id);
     }
 }

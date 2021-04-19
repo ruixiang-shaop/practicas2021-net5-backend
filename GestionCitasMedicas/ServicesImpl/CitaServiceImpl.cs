@@ -62,11 +62,12 @@ namespace GestionCitasMedicas.ServicesImpl
                 var updatedCita = await findByIdAsync(cita.id);
                 if (updatedCita == null)
                     return null;
-                updatedCita.fechaHora = cita.fechaHora;
+                if (cita.fechaHora != null) updatedCita.fechaHora = cita.fechaHora;
                 if (cita.motivoCita != null) updatedCita.motivoCita = cita.motivoCita;
-                if (cita.paciente != null) updatedCita.paciente = cita.paciente;
-                if (cita.medico != null) updatedCita.medico = cita.medico;
-                if (cita.diagnostico != null) updatedCita.diagnostico = cita.diagnostico;
+                if (cita.paciente != null)
+                    updatedCita.pacienteId = cita.pacienteId;
+                if (cita.medico != null)
+                    updatedCita.medicoId = cita.medicoId;
                 return await repository.UpdateCitaAsync(updatedCita);
             } catch (Exception) {
                 return null;

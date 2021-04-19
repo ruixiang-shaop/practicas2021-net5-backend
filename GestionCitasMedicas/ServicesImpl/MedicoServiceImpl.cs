@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using GestionCitasMedicas.Entities;
 using GestionCitasMedicas.Repositories;
@@ -9,15 +10,17 @@ namespace GestionCitasMedicas.ServicesImpl
 {
     public class MedicoServiceImpl : IMedicoService
     {
-        private readonly IMedicoRepository repository;
-        public MedicoServiceImpl(IMedicoRepository repository)
+        private readonly IMedicoRepository medRepository;
+        private readonly IPacienteRepository pacRepository;
+        public MedicoServiceImpl(IMedicoRepository medRepository, IPacienteRepository pacRepository)
         {
-            this.repository = repository;
+            this.medRepository = medRepository;
+            this.pacRepository = pacRepository;
         }
         public async Task<bool> deleteAsync(long id)
         {
             try {
-                await repository.DeleteMedicoAsync(id);
+                await medRepository.DeleteMedicoAsync(id);
                 return true;
             } catch (Exception) {
                 return false;
@@ -27,7 +30,7 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<ICollection<Medico>> findAllAsync()
         {
             try {
-                return (ICollection<Medico>) await repository.GetMedicosAsync();
+                return (ICollection<Medico>) await medRepository.GetMedicosAsync();
             } catch (Exception) {
                 return null;
             }
@@ -36,7 +39,7 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<Medico> findByIdAsync(long id)
         {
             try {
-                return await repository.GetMedicoAsync(id);
+                return await medRepository.GetMedicoAsync(id);
             } catch (Exception) {
                 return null;
             }
@@ -45,37 +48,43 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<Medico> getRandom()
         {
             try {
-                return await repository.GetMedicoRandomAsync();
+                return await medRepository.GetMedicoRandomAsync();
             } catch (Exception) {
                 return null;
             }
         }
 
-        public async Task<Medico> saveAsync(Medico med)
+        public async Task<long?> saveAsync(Medico med)
         {
             try {
-                return await repository.CreateMedicoAsync(med);
+                return await medRepository.CreateMedicoAsync(med);
             } catch (Exception) {
                 return null;
             }
         }
 
-        public async Task<Medico> updateAsync(Medico med)
+        public async Task<bool> updateAsync(Medico med)
         {
             try {
                 var updatedMed = await findByIdAsync(med.id);
                 if (updatedMed == null)
-                    return null;
+                    return false;
                 if (med.usuario != null) updatedMed.usuario = med.usuario;
                 if (med.clave != null) updatedMed.clave = med.clave;
                 if (med.nombre != null) updatedMed.nombre = med.nombre;
                 if (med.apellidos != null) updatedMed.apellidos = med.apellidos;
                 if (med.numColegiado != null) updatedMed.numColegiado = med.numColegiado;
-                if (med.pacientes != null) updatedMed.pacientes = med.pacientes;
-                if (med.citas != null) updatedMed.citas = med.citas;
-                return await repository.UpdateMedicoAsync(updatedMed);
+                if (med.pacientes != null && !med.pacientes.Equals(updatedMed.pacientes)) {
+                    updatedMed.pacientes = med.pacientes;
+                    foreach (var mp in updatedMed.pacientes) {
+                        mp.medico = updatedMed;
+                        mp.paciente = await pacRepository.GetPacienteAsync(mp.pacienteId);
+                    }
+                }
+                await medRepository.UpdateMedicoAsync(updatedMed);
+                return true;
             } catch (Exception) {
-                return null;
+                return false;
             }
         }
     }

@@ -61,7 +61,6 @@ namespace GestionCitasMedicas.Controllers
             Cita citaUpdated = await service.updateAsync(cita);
             if (citaUpdated == null)
                 return NotFound();
-            //return CreatedAtAction(nameof(UpdateCita), new {id = citaUpdated.id}, citaUpdated);
             return mapper.Map<Cita, CitaDTO>(citaUpdated);
         }
         

@@ -13,7 +13,7 @@ namespace GestionCitasMedicas.Entities
         public long id { get; set; }
         [Required]
         [Column("FECHA_HORA")]
-        public DateTime fechaHora { get; set; }
+        public DateTime? fechaHora { get; set; }
         [Required]
         [Column("MOTIVO_CITA")]
         public string motivoCita { get; set; }

@@ -52,10 +52,10 @@ namespace GestionCitasMedicas.Controllers
             Medico med = await medicoService.getRandom();
             pac.addMedico(med);
             med.addPaciente(pac);
-            Paciente pacNew = await service.saveAsync(pac);
-            if (pacNew != null)
-                return mapper.Map<Paciente, PacienteDTO>(pacNew);
-            return BadRequest();
+            var idPacNew = await service.saveAsync(pac);
+            if (idPacNew == null)
+                return BadRequest();
+            return await GetPaciente((long)idPacNew);
         }
 
         // PUT /pacientes/update
@@ -63,11 +63,10 @@ namespace GestionCitasMedicas.Controllers
         public async Task<ActionResult<PacienteDTO>> UpdatePaciente(PacienteDTO pacDto)
         {
             Paciente pac = mapper.Map<PacienteDTO, Paciente>(pacDto);
-            Paciente pacUpdated = await service.updateAsync(pac);
-            if (pacUpdated == null)
+            var updated = await service.updateAsync(pac);
+            if (!updated)
                 return NotFound();
-            //return CreatedAtAction(nameof(UpdatePaciente), new {id = pacUpdated.id}, pacUpdated);
-            return mapper.Map<Paciente, PacienteDTO>(pacUpdated);
+            return await GetPaciente(pac.id);
         }
         
         // DELETE /pacientes/delete/{id}

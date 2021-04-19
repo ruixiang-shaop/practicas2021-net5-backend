@@ -1,5 +1,6 @@
 using System.Linq;
 using AutoMapper;
+using GestionCitasMedicas.Dtos;
 
 namespace GestionCitasMedicas.Entities
 {
@@ -21,13 +22,8 @@ namespace GestionCitasMedicas.Entities
                         .Select(mp => mp.paciente).ToList()));
             CreateMap<Dtos.Medico.MedicoDTO, Medico>()
                 .ForMember(m => m.pacientes, opt => opt
-                    .MapFrom(dto => dto.pacientes))
-                .AfterMap((dto, m) => {
-                    foreach(var p in m.pacientes)
-                    {
-                        p.medico = m;
-                    }
-                });
+                    .MapFrom(dto => dto.pacientes
+                        .Select(p => new MedicoPaciente{medicoId=dto.id, pacienteId=p.id})));
 
             CreateMap<Cita, Dtos.Medico.CitaDTO>();
             CreateMap<Dtos.Medico.CitaDTO, Cita>();
@@ -38,13 +34,9 @@ namespace GestionCitasMedicas.Entities
                         .Select(mp => mp.medico).ToList()));
             CreateMap<Dtos.Paciente.PacienteDTO, Paciente>()
                 .ForMember(p => p.medicos, opt => opt
-                    .MapFrom(dto => dto.medicos))
-                .AfterMap((dto, p) => {
-                    foreach(var m in p.medicos)
-                    {
-                        m.paciente = p;
-                    }
-                });
+                    .MapFrom(dto => dto.medicos
+                        .Select(m => new MedicoPaciente{medicoId=m.id, pacienteId=dto.id})));
+
             CreateMap<Cita, Dtos.Paciente.CitaDTO>();
             CreateMap<Dtos.Paciente.CitaDTO, Cita>();
 
@@ -58,6 +50,12 @@ namespace GestionCitasMedicas.Entities
             CreateMap<Dtos.MedicoOnlyDTO, Medico>();
             CreateMap<Diagnostico, Dtos.DiagnosticoOnlyDTO>();
             CreateMap<Dtos.DiagnosticoOnlyDTO, Diagnostico>();
+
+            // many-to-many
+            CreateMap<MedicoPaciente, MedicoOnlyDTO>();
+            CreateMap<MedicoPaciente, PacienteOnlyDTO>();
+            CreateMap<MedicoOnlyDTO, MedicoPaciente>();
+            CreateMap<PacienteOnlyDTO, MedicoPaciente>();
         }
     }
 }

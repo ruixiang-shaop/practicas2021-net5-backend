@@ -9,15 +9,17 @@ namespace GestionCitasMedicas.ServicesImpl
 {
     public class PacienteServiceImpl : IPacienteService
     {
-        private readonly IPacienteRepository repository;
-        public PacienteServiceImpl(IPacienteRepository repository)
+        private readonly IPacienteRepository pacRepository;
+        private readonly IMedicoRepository medRepository;
+        public PacienteServiceImpl(IPacienteRepository pacRepository, IMedicoRepository medRepository)
         {
-            this.repository = repository;
+            this.pacRepository = pacRepository;
+            this.medRepository = medRepository;
         }
         public async Task<bool> deleteAsync(long id)
         {
             try {
-                await repository.DeletePacienteAsync(id);
+                await pacRepository.DeletePacienteAsync(id);
                 return true;
             } catch (Exception) {
                 return false;
@@ -27,7 +29,7 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<ICollection<Paciente>> findAllAsync()
         {
             try {
-                return (ICollection<Paciente>) await repository.GetPacientesAsync();
+                return (ICollection<Paciente>) await pacRepository.GetPacientesAsync();
             } catch (Exception) {
                 return null;
             }
@@ -36,27 +38,27 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<Paciente> findByIdAsync(long id)
         {
             try {
-                return await repository.GetPacienteAsync(id);
+                return await pacRepository.GetPacienteAsync(id);
             } catch (Exception) {
                 return null;
             }
         }
 
-        public async Task<Paciente> saveAsync(Paciente pac)
+        public async Task<long?> saveAsync(Paciente pac)
         {
             try {
-                return await repository.CreatePacienteAsync(pac);
+                return await pacRepository.CreatePacienteAsync(pac);
             } catch (Exception) {
                 return null;
             }
         }
 
-        public async Task<Paciente> updateAsync(Paciente pac)
+        public async Task<bool> updateAsync(Paciente pac)
         {
             try {
                 var updatedPac = await findByIdAsync(pac.id);
                 if (updatedPac == null)
-                    return null;
+                    return false;
                 if (pac.usuario != null) updatedPac.usuario = pac.usuario;
                 if (pac.clave != null) updatedPac.clave = pac.clave;
                 if (pac.nombre != null) updatedPac.nombre = pac.nombre;
@@ -65,11 +67,17 @@ namespace GestionCitasMedicas.ServicesImpl
                 if (pac.numTarjeta != null) updatedPac.numTarjeta = pac.numTarjeta;
                 if (pac.telefono != null) updatedPac.telefono = pac.telefono;
                 if (pac.direccion != null) updatedPac.direccion = pac.direccion;
-                if (pac.medicos != null) updatedPac.medicos = pac.medicos;
-                if (pac.citas != null) updatedPac.citas = pac.citas;
-                return await repository.UpdatePacienteAsync(updatedPac);
+                if (pac.medicos != null && !pac.medicos.Equals(updatedPac.medicos)) {
+                    updatedPac.medicos = pac.medicos;
+                    foreach (var mp in updatedPac.medicos) {
+                        mp.medico = await medRepository.GetMedicoAsync(mp.medicoId);
+                        mp.paciente = updatedPac;
+                    }
+                }
+                await pacRepository.UpdatePacienteAsync(updatedPac);
+                return true;
             } catch (Exception) {
-                return null;
+                return false;
             }
         }
     }

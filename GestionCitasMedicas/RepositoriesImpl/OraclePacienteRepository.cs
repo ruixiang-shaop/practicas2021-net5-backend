@@ -22,17 +22,16 @@ namespace GestionCitasMedicas.RepositoriesImpl
         {
             return await _context.OraclePaciente.FindAsync(id);
         }
-        public async Task<Paciente> CreatePacienteAsync(Paciente pac)
+        public async Task<long> CreatePacienteAsync(Paciente pac)
         {
             var pacCreated = await _context.OraclePaciente.AddAsync(pac);
             await _context.SaveChangesAsync();
-            return pacCreated.Entity;
+            return pacCreated.Entity.id;
         }
-        public async Task<Paciente> UpdatePacienteAsync(Paciente pac)
+        public async Task UpdatePacienteAsync(Paciente pac)
         {
             var pacUpdated = _context.OraclePaciente.Update(pac);
             await _context.SaveChangesAsync();
-            return pacUpdated.Entity;
         }
         public async Task DeletePacienteAsync(long id)
         {

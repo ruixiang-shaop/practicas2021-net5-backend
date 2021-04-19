@@ -47,10 +47,11 @@ namespace GestionCitasMedicas.Controllers
         public async Task<ActionResult<MedicoDTO>> CreateMedico(MedicoDTO medDto)
         {
             Medico med = mapper.Map<MedicoDTO, Medico>(medDto);
-            Medico medNew = await service.saveAsync(med);
-            if (medNew != null)
-                return mapper.Map<Medico, MedicoDTO>(medNew);
-            return BadRequest();
+            var newId = await service.saveAsync(med);
+            if (newId == null)
+                return BadRequest();
+            Medico createdMedico = await service.findByIdAsync((long)newId);
+            return mapper.Map<Medico, MedicoDTO>(createdMedico);
         }
 
         // PUT /medicos/update
@@ -58,11 +59,10 @@ namespace GestionCitasMedicas.Controllers
         public async Task<ActionResult<MedicoDTO>> UpdateMedico(MedicoDTO medDto)
         {
             Medico med = mapper.Map<MedicoDTO, Medico>(medDto);
-            Medico medUpdated = await service.updateAsync(med);
-            if (medUpdated == null)
+            var updated = await service.updateAsync(med);
+            if (!updated)
                 return NotFound();
-            //return CreatedAtAction(nameof(UpdateMedico), new {id = medUpdated.id}, medUpdated);
-            return mapper.Map<Medico, MedicoDTO>(medUpdated);
+            return await GetMedico(med.id);
         }
         
         // DELETE /medicos/delete/{id}
