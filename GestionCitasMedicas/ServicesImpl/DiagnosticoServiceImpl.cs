@@ -42,7 +42,7 @@ namespace GestionCitasMedicas.ServicesImpl
             }
         }
 
-        public async Task<Diagnostico> saveAsync(Diagnostico diag)
+        public async Task<long?> saveAsync(Diagnostico diag)
         {
             try {
                 diag.cita.diagnostico = diag;
@@ -52,18 +52,19 @@ namespace GestionCitasMedicas.ServicesImpl
             }
         }
 
-        public async Task<Diagnostico> updateAsync(Diagnostico diag)
+        public async Task<bool> updateAsync(Diagnostico diag)
         {
             try {
                 var updatedDiag = await findByIdAsync(diag.id);
                 if (updatedDiag == null)
-                    return null;
+                    return false;
                 if (diag.valoracionEspecialista != null) updatedDiag.valoracionEspecialista = diag.valoracionEspecialista;
                 if (diag.enfermedad != null) updatedDiag.enfermedad = diag.enfermedad;
                 if (diag.cita != null) updatedDiag.citaId = diag.citaId;
-                return await repository.UpdateDiagnosticoAsync(updatedDiag);
+                await repository.UpdateDiagnosticoAsync(updatedDiag);
+                return true;
             } catch (Exception) {
-                return null;
+                return false;
             }
         }
     }

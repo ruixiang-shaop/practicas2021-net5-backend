@@ -8,8 +8,8 @@ namespace GestionCitasMedicas.Repositories
     {
         Task<Diagnostico> GetDiagnosticoAsync(long id);
         Task<IEnumerable<Diagnostico>> GetDiagnosticosAsync();
-        Task<Diagnostico> CreateDiagnosticoAsync(Diagnostico diag);
-        Task<Diagnostico> UpdateDiagnosticoAsync(Diagnostico diag);
+        Task<long> CreateDiagnosticoAsync(Diagnostico diag);
+        Task UpdateDiagnosticoAsync(Diagnostico diag);
         Task DeleteDiagnosticoAsync(long id);
     }
 }

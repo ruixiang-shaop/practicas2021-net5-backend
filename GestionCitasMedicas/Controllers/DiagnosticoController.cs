@@ -47,10 +47,10 @@ namespace GestionCitasMedicas.Controllers
         public async Task<ActionResult<DiagnosticoDTO>> CreateDiagnostico(DiagnosticoDTO diagDto)
         {
             Diagnostico diag = mapper.Map<DiagnosticoDTO, Diagnostico>(diagDto);
-            Diagnostico diagNew = await service.saveAsync(diag);
-            if (diagNew != null)
-                return mapper.Map<Diagnostico, DiagnosticoDTO>(diagNew);
-            return BadRequest();
+            var newDiagId = await service.saveAsync(diag);
+            if (newDiagId != null)
+                return BadRequest();
+            return await GetDiagnostico((long)newDiagId);
         }
 
         // PUT /diagnosticos/update
@@ -58,10 +58,10 @@ namespace GestionCitasMedicas.Controllers
         public async Task<ActionResult<DiagnosticoDTO>> UpdateDiagnostico(DiagnosticoDTO diagDto)
         {
             Diagnostico diag = mapper.Map<DiagnosticoDTO, Diagnostico>(diagDto);
-            Diagnostico diagUpdated = await service.updateAsync(diag);
-            if (diagUpdated == null)
+            var updated = await service.updateAsync(diag);
+            if (!updated)
                 return NotFound();
-            return mapper.Map<Diagnostico, DiagnosticoDTO>(diagUpdated);
+            return await GetDiagnostico(diag.id);
         }
         
         // DELETE /diagnosticos/delete/{id}
