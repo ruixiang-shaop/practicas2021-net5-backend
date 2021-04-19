@@ -47,7 +47,7 @@ namespace GestionCitasMedicas.ServicesImpl
             }
         }
 
-        public async Task<Cita> saveAsync(Cita cita)
+        public async Task<long?> saveAsync(Cita cita)
         {
             try {
                 return await repository.CreateCitaAsync(cita);
@@ -56,21 +56,22 @@ namespace GestionCitasMedicas.ServicesImpl
             }
         }
 
-        public async Task<Cita> updateAsync(Cita cita)
+        public async Task<bool> updateAsync(Cita cita)
         {
             try {
                 var updatedCita = await findByIdAsync(cita.id);
                 if (updatedCita == null)
-                    return null;
+                    return false;
                 if (cita.fechaHora != null) updatedCita.fechaHora = cita.fechaHora;
                 if (cita.motivoCita != null) updatedCita.motivoCita = cita.motivoCita;
                 if (cita.paciente != null)
                     updatedCita.pacienteId = cita.pacienteId;
                 if (cita.medico != null)
                     updatedCita.medicoId = cita.medicoId;
-                return await repository.UpdateCitaAsync(updatedCita);
+                await repository.UpdateCitaAsync(updatedCita);
+                return true;
             } catch (Exception) {
-                return null;
+                return false;
             }
         }
     }

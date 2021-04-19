@@ -8,8 +8,8 @@ namespace GestionCitasMedicas.Repositories
     {
         Task<Cita> GetCitaAsync(long id);
         Task<IEnumerable<Cita>> GetCitasAsync();
-        Task<Cita> CreateCitaAsync(Cita cita);
-        Task<Cita> UpdateCitaAsync(Cita cita);
+        Task<long> CreateCitaAsync(Cita cita);
+        Task UpdateCitaAsync(Cita cita);
         Task DeleteCitaAsync(long id);
     }
 }

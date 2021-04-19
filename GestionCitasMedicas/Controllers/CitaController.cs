@@ -47,10 +47,10 @@ namespace GestionCitasMedicas.Controllers
         public async Task<ActionResult<CitaDTO>> CreateCita(CitaDTO citaDto)
         {
             Cita cita = mapper.Map<CitaDTO, Cita>(citaDto);
-            Cita citaNew = await service.saveAsync(cita);
-            if (citaNew != null)
-                return mapper.Map<Cita, CitaDTO>(citaNew);
-            return BadRequest();
+            var newCitaId = await service.saveAsync(cita);
+            if (newCitaId == null)
+                return BadRequest();
+            return await GetCita((long)newCitaId);
         }
 
         // PUT /citas/update
@@ -58,10 +58,10 @@ namespace GestionCitasMedicas.Controllers
         public async Task<ActionResult<CitaDTO>> UpdateCita(CitaDTO citaDto)
         {
             Cita cita = mapper.Map<CitaDTO, Cita>(citaDto);
-            Cita citaUpdated = await service.updateAsync(cita);
-            if (citaUpdated == null)
+            var updated = await service.updateAsync(cita);
+            if (!updated)
                 return NotFound();
-            return mapper.Map<Cita, CitaDTO>(citaUpdated);
+            return await GetCita(cita.id);
         }
         
         // DELETE /citas/delete/{id}
