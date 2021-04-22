@@ -9,17 +9,33 @@ namespace GestionCitasMedicas.ServicesImpl
 {
     public class PacienteServiceImpl : IPacienteService
     {
-        private readonly IPacienteRepository pacRepository;
-        private readonly IMedicoRepository medRepository;
-        public PacienteServiceImpl(IPacienteRepository pacRepository, IMedicoRepository medRepository)
+        private readonly IPacienteRepository pacRepo;
+        private readonly IMedicoRepository medRepo;
+        private readonly ICitaRepository citaRepo;
+        private readonly IDiagnosticoRepository diagRepo;
+        public PacienteServiceImpl(IPacienteRepository pacRepo, IMedicoRepository medRepo,
+            ICitaRepository citaRepo, IDiagnosticoRepository diagRepo)
         {
-            this.pacRepository = pacRepository;
-            this.medRepository = medRepository;
+            this.pacRepo = pacRepo;
+            this.medRepo = medRepo;
+            this.citaRepo = citaRepo;
+            this.diagRepo = diagRepo;
         }
         public async Task<bool> deleteAsync(long id)
         {
             try {
-                await pacRepository.DeletePacienteAsync(id);
+
+                Paciente pac = await pacRepo.GetPacienteAsync(id);
+                pac.medicos = new HashSet<MedicoPaciente>();
+                await this.updateAsync(pac);
+
+                foreach (Cita c in pac.citas) {
+                    await diagRepo.DeleteDiagnosticoAsync(c.diagnostico.id);
+                    await citaRepo.DeleteCitaAsync(c.id);
+                }
+                pac.citas = new HashSet<Cita>();
+                
+                await pacRepo.DeletePacienteAsync(id);
                 return true;
             } catch (Exception) {
                 return false;
@@ -29,7 +45,7 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<ICollection<Paciente>> findAllAsync()
         {
             try {
-                return (ICollection<Paciente>) await pacRepository.GetPacientesAsync();
+                return (ICollection<Paciente>) await pacRepo.GetPacientesAsync();
             } catch (Exception) {
                 return null;
             }
@@ -38,7 +54,7 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<Paciente> findByIdAsync(long id)
         {
             try {
-                return await pacRepository.GetPacienteAsync(id);
+                return await pacRepo.GetPacienteAsync(id);
             } catch (Exception) {
                 return null;
             }
@@ -47,7 +63,7 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<long?> saveAsync(Paciente pac)
         {
             try {
-                return await pacRepository.CreatePacienteAsync(pac);
+                return await pacRepo.CreatePacienteAsync(pac);
             } catch (Exception) {
                 return null;
             }
@@ -70,11 +86,11 @@ namespace GestionCitasMedicas.ServicesImpl
                 if (pac.medicos != null && !pac.medicos.Equals(updatedPac.medicos)) {
                     updatedPac.medicos = pac.medicos;
                     foreach (var mp in updatedPac.medicos) {
-                        mp.medico = await medRepository.GetMedicoAsync(mp.medicoId);
+                        mp.medico = await medRepo.GetMedicoAsync(mp.medicoId);
                         mp.paciente = updatedPac;
                     }
                 }
-                await pacRepository.UpdatePacienteAsync(updatedPac);
+                await pacRepo.UpdatePacienteAsync(updatedPac);
                 return true;
             } catch (Exception) {
                 return false;

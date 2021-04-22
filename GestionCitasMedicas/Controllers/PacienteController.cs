@@ -17,14 +17,11 @@ namespace GestionCitasMedicas.Controllers
     {
         private readonly IPacienteService pacService;
         private readonly IMedicoService medicoService;
-        private readonly ICitaService citaService;
         private readonly IMapper mapper;
-        public PacienteController(IPacienteService pacService, IMedicoService medicoService, IMapper mapper,
-            ICitaService citaService)
+        public PacienteController(IPacienteService pacService, IMedicoService medicoService, IMapper mapper)
         {
             this.pacService = pacService;
             this.medicoService = medicoService;
-            this.citaService = citaService;
             this.mapper = mapper;
         }
 
@@ -78,13 +75,6 @@ namespace GestionCitasMedicas.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<ActionResult> DeletePaciente(long id)
         {
-            Paciente pac = await pacService.findByIdAsync(id);
-            foreach (Cita c in pac.citas) {
-                await citaService.deleteAsync(c.id);
-            }
-            pac.medicos = new HashSet<MedicoPaciente>();
-            pac.citas = new HashSet<Cita>();
-            await pacService.updateAsync(pac);
             if (await pacService.deleteAsync(id))
                 return NoContent();
             return NotFound();
