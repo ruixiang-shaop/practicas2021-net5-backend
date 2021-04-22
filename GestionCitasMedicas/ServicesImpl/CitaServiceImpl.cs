@@ -9,10 +9,17 @@ namespace GestionCitasMedicas.ServicesImpl
 {
     public class CitaServiceImpl : ICitaService
     {
-        private readonly ICitaRepository repository;
-        public CitaServiceImpl(ICitaRepository repository)
+        private readonly ICitaRepository citaRepo;
+        private readonly IDiagnosticoRepository diagRepo;
+        private readonly IMedicoRepository medRepo;
+        private readonly IPacienteRepository pacRepo;
+        public CitaServiceImpl(ICitaRepository citaRepo, IDiagnosticoRepository diagRepo,
+            IMedicoRepository medRepo, IPacienteRepository pacRepo)
         {
-            this.repository = repository;
+            this.citaRepo = citaRepo;
+            this.diagRepo = diagRepo;
+            this.medRepo = medRepo;
+            this.pacRepo = pacRepo;
         }
         public async Task<bool> deleteAsync(long id)
         {
@@ -20,9 +27,9 @@ namespace GestionCitasMedicas.ServicesImpl
                 var cita = await findByIdAsync(id);
                 if (cita == null)
                     return true;
-                cita.medico.removeCita(cita);
-                cita.paciente.removeCita(cita);
-                await repository.DeleteCitaAsync(id);
+                if (cita.diagnostico != null)
+                    await diagRepo.DeleteDiagnosticoAsync(cita.diagnostico.id);
+                await citaRepo.DeleteCitaAsync(id);
                 return true;
             } catch (Exception) {
                 return false;
@@ -32,7 +39,7 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<ICollection<Cita>> findAllAsync()
         {
             try {
-                return (ICollection<Cita>) await repository.GetCitasAsync();
+                return (ICollection<Cita>) await citaRepo.GetCitasAsync();
             } catch (Exception) {
                 return null;
             }
@@ -41,7 +48,7 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<Cita> findByIdAsync(long id)
         {
             try {
-                return await repository.GetCitaAsync(id);
+                return await citaRepo.GetCitaAsync(id);
             } catch (Exception) {
                 return null;
             }
@@ -50,7 +57,11 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<long?> saveAsync(Cita cita)
         {
             try {
-                return await repository.CreateCitaAsync(cita);
+                Medico m = await medRepo.GetMedicoAsync(cita.medicoId);
+                Paciente p = await pacRepo.GetPacienteAsync(cita.pacienteId);
+                cita.medico = m;
+                cita.paciente = p;
+                return await citaRepo.CreateCitaAsync(cita);
             } catch (Exception) {
                 return null;
             }
@@ -68,7 +79,7 @@ namespace GestionCitasMedicas.ServicesImpl
                     updatedCita.pacienteId = cita.pacienteId;
                 if (cita.medico != null)
                     updatedCita.medicoId = cita.medicoId;
-                await repository.UpdateCitaAsync(updatedCita);
+                await citaRepo.UpdateCitaAsync(updatedCita);
                 return true;
             } catch (Exception) {
                 return false;

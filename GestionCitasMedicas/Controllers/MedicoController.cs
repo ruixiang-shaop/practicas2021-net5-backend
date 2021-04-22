@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using GestionCitasMedicas.Dtos.Medico;
+using GestionCitasMedicas.Dtos.Register;
 using GestionCitasMedicas.Entities;
 using GestionCitasMedicas.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +15,13 @@ namespace GestionCitasMedicas.Controllers
     [Route("medicos")]
     public class MedicoController : ControllerBase
     {
-        private readonly IMedicoService service;
+        private readonly IMedicoService medService;
+        private readonly ICitaService citaService;
         private readonly IMapper mapper;
-        public MedicoController(IMedicoService service, IMapper mapper)
+        public MedicoController(IMedicoService medService, IMapper mapper, ICitaService citaService)
         {
-            this.service = service;
+            this.medService = medService;
+            this.citaService = citaService;
             this.mapper = mapper;
         }
 
@@ -26,7 +29,7 @@ namespace GestionCitasMedicas.Controllers
         [HttpGet]
         public async Task<IEnumerable<MedicoDTO>> GetMedicos()
         {
-            ICollection<Medico> meds = await service.findAllAsync();
+            ICollection<Medico> meds = await medService.findAllAsync();
             return mapper.Map<ICollection<Medico>, ICollection<MedicoDTO>>(meds);
         }
 
@@ -34,7 +37,7 @@ namespace GestionCitasMedicas.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<MedicoDTO>> GetMedico(long id)
         {
-            Medico med = await service.findByIdAsync(id);
+            Medico med = await medService.findByIdAsync(id);
             if (med is null)
             {
                 return NotFound();
@@ -44,14 +47,13 @@ namespace GestionCitasMedicas.Controllers
 
         // Post /medicos/add
         [HttpPost("add")]
-        public async Task<ActionResult<MedicoDTO>> CreateMedico(MedicoDTO medDto)
+        public async Task<ActionResult<MedicoDTO>> CreateMedico(MedicoRegistroDTO medRegDto)
         {
-            Medico med = mapper.Map<MedicoDTO, Medico>(medDto);
-            var newId = await service.saveAsync(med);
+            Medico med = mapper.Map<MedicoRegistroDTO, Medico>(medRegDto);
+            var newId = await medService.saveAsync(med);
             if (newId == null)
                 return BadRequest();
-            Medico createdMedico = await service.findByIdAsync((long)newId);
-            return mapper.Map<Medico, MedicoDTO>(createdMedico);
+            return await GetMedico((long)newId);
         }
 
         // PUT /medicos/update
@@ -59,7 +61,7 @@ namespace GestionCitasMedicas.Controllers
         public async Task<ActionResult<MedicoDTO>> UpdateMedico(MedicoDTO medDto)
         {
             Medico med = mapper.Map<MedicoDTO, Medico>(medDto);
-            var updated = await service.updateAsync(med);
+            var updated = await medService.updateAsync(med);
             if (!updated)
                 return NotFound();
             return await GetMedico(med.id);
@@ -67,9 +69,16 @@ namespace GestionCitasMedicas.Controllers
         
         // DELETE /medicos/delete/{id}
         [HttpDelete("delete/{id}")]
-        public async Task<ActionResult> DeleteItem(long id)
+        public async Task<ActionResult> DeleteMedico(long id)
         {
-            if (await service.deleteAsync(id))
+            Medico med = await medService.findByIdAsync(id);
+            foreach (Cita c in med.citas) {
+                await citaService.deleteAsync(c.id);
+            }
+            med.pacientes = new HashSet<MedicoPaciente>();
+            med.citas = new HashSet<Cita>();
+            await medService.updateAsync(med);
+            if (await medService.deleteAsync(id))
                 return NoContent();
             return NotFound();
         }

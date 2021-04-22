@@ -10,11 +10,15 @@ namespace GestionCitasMedicas.Entities
         {
             CreateMap<Diagnostico, Dtos.Diagnostico.DiagnosticoDTO>();
             CreateMap<Dtos.Diagnostico.DiagnosticoDTO, Diagnostico>();
+            CreateMap<Diagnostico, Dtos.Diagnostico.CreateDiagnosticoDTO>();
+            CreateMap<Dtos.Diagnostico.CreateDiagnosticoDTO, Diagnostico>();
             CreateMap<Cita, Dtos.Diagnostico.CitaDTO>();
             CreateMap<Dtos.Diagnostico.CitaDTO, Cita>();
 
             CreateMap<Cita, Dtos.Cita.CitaDTO>();
             CreateMap<Dtos.Cita.CitaDTO, Cita>();
+            CreateMap<Cita, Dtos.Cita.CreateCitaDTO>();
+            CreateMap<Dtos.Cita.CreateCitaDTO, Cita>();
 
             CreateMap<Medico, Dtos.Medico.MedicoDTO>()
                 .ForMember(dto => dto.pacientes, opt => opt

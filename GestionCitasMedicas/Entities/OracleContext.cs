@@ -22,6 +22,11 @@ namespace GestionCitasMedicas.Entities
             modelBuilder.Entity<Paciente>().ToTable("PACIENTE");
             modelBuilder.Entity<Medico>().ToTable("MEDICO");
 
+            // Id value generated on db
+            modelBuilder.Entity<Usuario>().Property(u => u.id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Cita>().Property(c => c.id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Diagnostico>().Property(d => d.id).ValueGeneratedOnAdd();
+
             // FK cita->diagnostico
             modelBuilder.Entity<Cita>()
                 .HasOne<Diagnostico>(c => c.diagnostico)
@@ -33,13 +38,13 @@ namespace GestionCitasMedicas.Entities
                 .HasOne<Medico>(c => c.medico)
                 .WithMany(m => m.citas)
                 .HasForeignKey(c => c.medicoId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
             // FK cita -> paciente
             modelBuilder.Entity<Cita>()
                 .HasOne<Paciente>(c => c.paciente)
                 .WithMany(p => p.citas)
                 .HasForeignKey(c => c.pacienteId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<MedicoPaciente>().HasKey(
                 mp => new { mp.medicoId, mp.pacienteId }
@@ -48,12 +53,12 @@ namespace GestionCitasMedicas.Entities
                 .HasOne<Medico>(mp => mp.medico)
                 .WithMany(m => m.pacientes)
                 .HasForeignKey(mp => mp.medicoId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<MedicoPaciente>()
                 .HasOne<Paciente>(mp => mp.paciente)
                 .WithMany(p => p.medicos)
                 .HasForeignKey(mp => mp.pacienteId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public static readonly Microsoft.Extensions.Logging.LoggerFactory _myLoggerFactory =

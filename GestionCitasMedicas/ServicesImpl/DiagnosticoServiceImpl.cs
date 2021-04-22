@@ -9,15 +9,17 @@ namespace GestionCitasMedicas.ServicesImpl
 {
     public class DiagnosticoServiceImpl : IDiagnosticoService
     {
-        private readonly IDiagnosticoRepository repository;
-        public DiagnosticoServiceImpl(IDiagnosticoRepository repository)
+        private readonly IDiagnosticoRepository diagRepo;
+        private readonly ICitaRepository citaRepo;
+        public DiagnosticoServiceImpl(IDiagnosticoRepository diagRepo, ICitaRepository citaRepo)
         {
-            this.repository = repository;
+            this.diagRepo = diagRepo;
+            this.citaRepo = citaRepo;
         }
         public async Task<bool> deleteAsync(long id)
         {
             try {
-                await repository.DeleteDiagnosticoAsync(id);
+                await diagRepo.DeleteDiagnosticoAsync(id);
                 return true;
             } catch (Exception) {
                 return false;
@@ -27,7 +29,7 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<ICollection<Diagnostico>> findAllAsync()
         {
             try {
-                return (ICollection<Diagnostico>) await repository.GetDiagnosticosAsync();
+                return (ICollection<Diagnostico>) await diagRepo.GetDiagnosticosAsync();
             } catch (Exception) {
                 return null;
             }
@@ -36,7 +38,7 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<Diagnostico> findByIdAsync(long id)
         {
             try {
-                return await repository.GetDiagnosticoAsync(id);
+                return await diagRepo.GetDiagnosticoAsync(id);
             } catch (Exception) {
                 return null;
             }
@@ -45,8 +47,9 @@ namespace GestionCitasMedicas.ServicesImpl
         public async Task<long?> saveAsync(Diagnostico diag)
         {
             try {
-                diag.cita.diagnostico = diag;
-                return await repository.CreateDiagnosticoAsync(diag);
+                Cita c = await citaRepo.GetCitaAsync(diag.citaId);
+                diag.cita = c;
+                return await diagRepo.CreateDiagnosticoAsync(diag);
             } catch (Exception) {
                 return null;
             }
@@ -61,7 +64,7 @@ namespace GestionCitasMedicas.ServicesImpl
                 if (diag.valoracionEspecialista != null) updatedDiag.valoracionEspecialista = diag.valoracionEspecialista;
                 if (diag.enfermedad != null) updatedDiag.enfermedad = diag.enfermedad;
                 if (diag.cita != null) updatedDiag.citaId = diag.citaId;
-                await repository.UpdateDiagnosticoAsync(updatedDiag);
+                await diagRepo.UpdateDiagnosticoAsync(updatedDiag);
                 return true;
             } catch (Exception) {
                 return false;

@@ -14,11 +14,12 @@ namespace GestionCitasMedicas.Controllers
     [Route("citas")]
     public class CitaController : ControllerBase
     {
-        private readonly ICitaService service;
+        private readonly ICitaService citaService;
+
         private readonly IMapper mapper;
-        public CitaController(ICitaService service, IMapper mapper)
+        public CitaController(ICitaService citaService, IMapper mapper)
         {
-            this.service = service;
+            this.citaService = citaService;
             this.mapper = mapper;
         }
 
@@ -26,7 +27,7 @@ namespace GestionCitasMedicas.Controllers
         [HttpGet]
         public async Task<IEnumerable<CitaDTO>> GetCitas()
         {
-            ICollection<Cita> citas = await service.findAllAsync();
+            ICollection<Cita> citas = await citaService.findAllAsync();
             return mapper.Map<ICollection<Cita>, ICollection<CitaDTO>>(citas);
         }
 
@@ -34,7 +35,7 @@ namespace GestionCitasMedicas.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CitaDTO>> GetCita(long id)
         {
-            Cita cita = await service.findByIdAsync(id);
+            Cita cita = await citaService.findByIdAsync(id);
             if (cita is null)
             {
                 return NotFound();
@@ -44,10 +45,10 @@ namespace GestionCitasMedicas.Controllers
 
         // Post /citas/add
         [HttpPost("add")]
-        public async Task<ActionResult<CitaDTO>> CreateCita(CitaDTO citaDto)
+        public async Task<ActionResult<CitaDTO>> CreateCita(CreateCitaDTO citaDto)
         {
-            Cita cita = mapper.Map<CitaDTO, Cita>(citaDto);
-            var newCitaId = await service.saveAsync(cita);
+            Cita cita = mapper.Map<CreateCitaDTO, Cita>(citaDto);
+            var newCitaId = await citaService.saveAsync(cita);
             if (newCitaId == null)
                 return BadRequest();
             return await GetCita((long)newCitaId);
@@ -58,7 +59,7 @@ namespace GestionCitasMedicas.Controllers
         public async Task<ActionResult<CitaDTO>> UpdateCita(CitaDTO citaDto)
         {
             Cita cita = mapper.Map<CitaDTO, Cita>(citaDto);
-            var updated = await service.updateAsync(cita);
+            var updated = await citaService.updateAsync(cita);
             if (!updated)
                 return NotFound();
             return await GetCita(cita.id);
@@ -66,9 +67,9 @@ namespace GestionCitasMedicas.Controllers
         
         // DELETE /citas/delete/{id}
         [HttpDelete("delete/{id}")]
-        public async Task<ActionResult> DeleteItem(long id)
+        public async Task<ActionResult> DeleteCita(long id)
         {
-            if (await service.deleteAsync(id))
+            if (await citaService.deleteAsync(id))
                 return NoContent();
             return NotFound();
         }
