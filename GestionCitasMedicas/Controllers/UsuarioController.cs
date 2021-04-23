@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using GestionCitasMedicas.Dtos;
@@ -24,12 +26,16 @@ namespace GestionCitasMedicas.Controllers
         }
 
         [HttpPost("usuarios/usuarioExists")]
-        public async Task<string> CheckIfUsuarioExists(string usuario)
+        public async Task<string> CheckIfUsuarioExists()
         {
-            Usuario user = await service.findByUsuarioAsync(usuario);
-            if (user == null)
-                return "false";
-            return "true";
+            // Request is only a string in text/plain, can't use json
+            using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8)) {
+                string usuario = await reader.ReadToEndAsync();
+                Usuario user = await service.findByUsuarioAsync(usuario);
+                if (user == null)
+                    return "false";
+                return "true";
+            }
         }
 
         [HttpPost("auth")]
